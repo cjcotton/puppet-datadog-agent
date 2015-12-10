@@ -2,47 +2,23 @@
 #
 # This class will install the necessary configuration for the process integration
 #
-# Parameters:
-#   $processes:
-#       Array of process hashes. See example
-#
-# Process hash keys:
-#   search_strings
-#       LIST OF STRINGS If one of the element in the list matches,
-#       return the counter of all the processes that contain the string
-#
-#   exact_match
-#       True/False, default to True, if you want to look for an arbitrary
-#       string, use exact_match: False, unless use the exact base name of the process
-#
-#   cpu_check_interval
-#       CPU percent check interval: 0.1 - 1.0 sec. More time - more precise
-#       Optional
 #
 # Sample Usage:
-#
-# class { 'datadog_agent::integrations::process':
-#     processes   => [
-#         {
-#             'name'          => 'puppetmaster',
-#             'search_string' => ['puppet master'],
-#             'exact_match'   => false,
-#         },
-#         {
-#             'name'          => 'sshd',
-#             'search_string' => ['/usr/sbin/sshd'],
-#             'exact_match'   => true,
-#         },
-#     ],
+# {
+#   "dd::process": {
+#     "dd::process::name": "apache2",
+#     "dd::process::search_strings": "apache2",
+#     "dd::process::exact_match": "false"
+#   }
 # }
-
-#
 #
 class datadog_agent::integrations::process(
-  $processes = [],
 ) inherits datadog_agent::params {
 
-  validate_array( $processes )
+  $dd_process     = hiera('dd::process')
+  $process_name   = $dd_process['dd::process::name']
+  $search_strings = $dd_process['dd::process::search_strings']
+  $exact_match    = $dd_process['dd::process::exact_match']
 
   file { "${datadog_agent::params::conf_dir}/process.yaml":
     ensure  => file,
